@@ -16,7 +16,7 @@ void MP1Node::printMessage(string callr_fn, Address *sendr, MessageHdr *msg, int
     MsgTypes msgType;
     //char *msg_chr;
     
-    cout << "printMessage[" << this->par->getcurrtime() << "] in " << callr_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
+    cout << "\n printMessage[" << this->par->getcurrtime() << "] in " << callr_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
     memcpy(&msgType, msg, sizeof(MsgTypes));
     //msg_chr = (char *)msg;
     
@@ -37,7 +37,7 @@ void MP1Node::printMessage(string callr_fn, Address *sendr, MessageHdr *msg, int
             cout << "UNKNOWN";
 
     }
-    cout << " from=" << sendr->getAddress();
+    cout << "\n from=" << sendr->getAddress();
     //cout << " to=" << recvr->getAddress();
     cout << endl;
 }
@@ -142,7 +142,7 @@ int MP1Node::initThisNode(Address *joinaddr) {
 	memberNode->timeOutCounter = -1;
     initMemberListTable(memberNode);
      
-   cout << "initThisNode: id=" << id << "| port=" << port << "|" << endl;
+   cout << "\n initThisNode: id=" << id << "| port=" << port << "|" << endl;
 	
     return 0;
 }
