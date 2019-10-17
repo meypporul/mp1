@@ -267,6 +267,14 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	#ifdef DEBUGLOG
 		log->LOG(&((Member *)env)->addr, "Received message type %d with %d B payload", msg->msgType, size - sizeof(MessageHdr));
 	#endif
+
+	switch(msg->msgType) {
+		case(JOINREQ): cout << " JOINREQ: size=" << size; break;
+		case(JOINREP): cout << " JOINREP: size=" << size; break;
+		case(GOSSIP): cout << " GOSSIP: size=" << size; break;
+		default: cout << " WTF!!!: size=" << size; return(false);
+	}
+	cout << " sender=" << &((Member *)env)->addr << endl;	
 	
 }
 
