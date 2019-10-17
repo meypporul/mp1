@@ -16,7 +16,7 @@ void MP1Node::printMessage(string callr_fn, Address *sendr, MessageHdr *msg, int
     MsgTypes msgType;
     //char *msg_chr;
     
-    cout << "<bbi>[" << this->par->getcurrtime() << "]in " << callr_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
+    cout << "printMessage[" << this->par->getcurrtime() << "] in " << callr_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
     memcpy(&msgType, msg, sizeof(MsgTypes));
     //msg_chr = (char *)msg;
     
@@ -141,7 +141,9 @@ int MP1Node::initThisNode(Address *joinaddr) {
 	memberNode->pingCounter = TFAIL;
 	memberNode->timeOutCounter = -1;
     initMemberListTable(memberNode);
-
+     
+   cout << "initThisNode: id=" << id << "| port=" << port << "|" << endl;
+	
     return 0;
 }
 
