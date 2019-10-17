@@ -179,7 +179,7 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 
         // send JOINREQ message to introducer member
         emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
-	this->printMessage(msg, &this->memberNode->addr, msgsize);
+	this->printMessage("introduceSelfToGroup", &this->memberNode->addr, msgsize);
 	    
         free(msg);
     }
