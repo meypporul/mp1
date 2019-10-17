@@ -11,6 +11,70 @@
  * Note: You can change/add any functions in MP1Node.{h,cpp}
  */
 
+void MP1Node::printMessage(string callr_fn, Address *sendr, Address *recvr, 
+                            MessageHdr *msg, int size)
+{
+    MsgTypes msgType;
+    //char *msg_chr;
+    
+    cout << "<bbi>[" << this->par->getcurrtime() << "]in " << callr_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
+    memcpy(&msgType, msg, sizeof(MsgTypes));
+    //msg_chr = (char *)msg;
+    
+    switch(msgType) {
+        case(JOINREQ): 
+            cout << " JOINREQ"; 
+            break;
+  
+        case(JOINREP): 
+            cout << " JOINREP"; 
+            break;
+
+        case(MMBRTBL): 
+            cout << " MMBRTBL"; 
+            break;
+
+        case(DUMMYLASTMSGTYPE): 
+            cout << "DUMMYLASTMSGTYPE" << " "; 
+            break;
+        
+        default: 
+            cout << "UNKNOWN";
+
+    }
+    cout << " from=" << sendr->getAddress();
+    cout << " to=" << recvr->getAddress();
+    cout << endl;
+}
+
+void MP1Node::printNodeData(string caller_fn) {
+    cout << "<bbi>[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
+    cout << " data:";        
+    cout <<             "inGroup=" << this->memberNode->inGroup << "| ";
+    cout <<             "heartbeat=" << this->memberNode->heartbeat << "| "; 
+    cout <<             "nnb=" << this->memberNode->nnb << "| ";               
+    cout <<             "memberList: size=" << this->memberNode->memberList.size() << "| ";        
+    cout << endl;
+    cout << "<bbi>[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
+    cout << " data: memberList: ";        
+    cout << endl;
+    
+    // Cannot use this->memberNode->myPos iterator bc it messes up the caller_fn
+    size_t pos = 0;
+    for (pos = 0; pos < this->memberNode->memberList.size(); pos++) {
+        //thisMemberListEntry = this->memberNode->myPos;     
+        cout << "<bbi>[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
+        cout << " ";
+        cout << "pos=" << pos << "| ";
+        cout << "id="           << this->memberNode->memberList[pos].id << "| ";    
+        cout << "port="         << this->memberNode->memberList[pos].port << "| ";    
+        cout << "heartbeat="    << this->memberNode->memberList[pos].heartbeat << "| ";                
+        cout << "timestamp="    << this->memberNode->memberList[pos].timestamp << "| ";                            
+        cout << endl;
+    }
+}
+
+
 /**
  * Overloaded Constructor of the MP1Node class
  * You can add new members to the class if you think it
@@ -146,7 +210,8 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 
         // send JOINREQ message to introducer member
         emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
-
+	this->printMessage(msg, msgsize);
+	    
         free(msg);
     }
 
