@@ -55,7 +55,7 @@ private:
 	Params *par;
 	Member *memberNode;
 	char NULLADDR[6];
-	void MP1Node::printMessage(string callr_fn, Address *sendr, int size);
+	void MP1Node::printMessage(string callr_fn, Address *sendr, MessageHdr *msg, int size);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);
