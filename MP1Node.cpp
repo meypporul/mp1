@@ -11,7 +11,7 @@
  * Note: You can change/add any functions in MP1Node.{h,cpp}
  */
 
-void MP1Node::printMessage(string callr_fn, Address *sendr, int size)
+void MP1Node::printMessage(string callr_fn, Address *sendr, MessageHdr *msg, int size)
 {
     MsgTypes msgType;
     //char *msg_chr;
@@ -179,7 +179,7 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 
         // send JOINREQ message to introducer member
         emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
-	this->printMessage("introduceSelfToGroup", &this->memberNode->addr, msgsize);
+	this->printMessage("introduceSelfToGroup", &this->memberNode->addr, msg, msgsize);
 	    
         free(msg);
     }
