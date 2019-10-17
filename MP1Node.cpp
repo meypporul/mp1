@@ -30,12 +30,8 @@ void MP1Node::printMessage(string callr_fn, Address *sendr,
             cout << " JOINREP"; 
             break;
 
-        case(MMBRTBL): 
-            cout << " MMBRTBL"; 
-            break;
-
-        case(DUMMYLASTMSGTYPE): 
-            cout << "DUMMYLASTMSGTYPE" << " "; 
+        case(GOSSIP): 
+            cout << " GOSSIP"; 
             break;
         
         default: 
