@@ -11,8 +11,7 @@
  * Note: You can change/add any functions in MP1Node.{h,cpp}
  */
 
-void MP1Node::printMessage(string callr_fn, Address *sendr, 
-                            MessageHdr *msg, int size)
+void MP1Node::printMessage(string callr_fn, Address *sendr, int size)
 {
     MsgTypes msgType;
     //char *msg_chr;
