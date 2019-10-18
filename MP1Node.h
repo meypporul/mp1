@@ -34,14 +34,16 @@ enum MsgTypes{
     GOSSIP
 };
 
-/**
- * STRUCT NAME: MessageHdr
- *
- * DESCRIPTION: Header and content of a message
- */
-typedef struct MessageHdr {
-	enum MsgTypes msgType;
-}MessageHdr;
+
+/* Usage: Message Payload */
+
+typedef struct MessagePayLoad {
+    enum MsgTypes msgType;
+	int Nodeid;
+	short port;
+	long heartbeat;
+} MessagePayLoad;
+
 
 /**
  * CLASS NAME: MP1Node
@@ -56,7 +58,7 @@ private:
 	Member *memberNode;
 	char NULLADDR[6];
 	
-	void printMessage(string callr_fn, Address *sendr, MessageHdr *msg, int size);
+	void printMessage(string callr_fn, Address *sendr, MessagePayLoad *msg, int size);
 	void printNodeData(string caller_fn);
 
 public:
