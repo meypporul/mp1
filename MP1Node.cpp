@@ -274,7 +274,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 		default: cout << " WTF!!!: size=" << size; return(false);
 	}
 	cout << " sender=" << &((Member *)env)->addr << "----" << &node->addr << "---" << (Member *)env << "---" << packetData << endl;	
-	cout << "On Currtime --> " << this->par->getcurrtime() << ", recvCallBack of Node:" << this->memberNode->addr.getAddress();
+	cout << "On Currtime --> " << this->par->getcurrtime() << ", recvCallBack of Node:" << this->memberNode->addr.getAddress() << " --" << memberNode->inGroup << endl;
 	
 }
 
