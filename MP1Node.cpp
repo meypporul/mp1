@@ -297,7 +297,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 		case(GOSSIP): cout << " GOSSIP: size=" << size; break;
 		default: cout << " WTF!!!: size=" << size; return(false);
 	}
-	cout << " sender= " << &((Member *)env)->addr << "--" << &node->addr << "--" << packetData << endl;	
+	cout << " sender= " << &((Member *)env)->addr << "--" << &node->addr << " || " &data-->addr << "--" << packetData << endl;	
 	cout << "On Currtime --> " << this->par->getcurrtime() << ", recvCallBack of Node:" << this->memberNode->addr.getAddress() << " --" << memberNode->inGroup << endl;
 	
 }
@@ -333,7 +333,7 @@ int MP1Node::sendMessage(enum MsgTypes msgType, Address *dstAddr) {
 		msg->msgType = msgType;
 		msg->nofmsg = n;
 		mpl = (MessagePayLoad *)(msg + 1);
-		mpl->id = *(int *)(&memberNode->addr.addr);
+		mpl->NodeId = *(int *)(&memberNode->addr.addr);
 		mpl->port = *(short *)(&memberNode->addr.addr[4]);
 		mpl->heartbeat = memberNode->heartbeat;
 		n += memberNode->memberList.size();
@@ -341,11 +341,11 @@ int MP1Node::sendMessage(enum MsgTypes msgType, Address *dstAddr) {
 		for (vector<MemberListEntry>::iterator m = memberNode->memberList.begin(); m != memberNode->memberList.end(); ++m) {
 			mpl++;
 			if (par->getcurrtime() - m->timestamp <= memberNode->pingCounter ) {
-				mpl->id = m->id;
+				mpl->NodeId = m->id;
 				mpl->port = m->port;
 				mpl->heartbeat = m->heartbeat;
 			} else { 
-				mpl->id = *(int *)(&memberNode->addr.addr);
+				mpl->NodeId = *(int *)(&memberNode->addr.addr);
 				mpl->port = *(short *)(&memberNode->addr.addr[4]);
 				mpl->heartbeat = memberNode->heartbeat;
 			}
@@ -357,7 +357,7 @@ int MP1Node::sendMessage(enum MsgTypes msgType, Address *dstAddr) {
 		msg->msgType = msgType;
 		msg->nofmsg = n;
 		mpl = (MessagePayLoad *)(msg + 1);
-		mpl->id = *(int *)(&memberNode->addr.addr);
+		mpl->NodeId = *(int *)(&memberNode->addr.addr);
 		mpl->port = *(short *)(&memberNode->addr.addr[4]);
 		mpl->heartbeat = memberNode->heartbeat;
 	}
