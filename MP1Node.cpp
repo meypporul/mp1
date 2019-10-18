@@ -142,7 +142,7 @@ int MP1Node::initThisNode(Address *joinaddr) {
 	memberNode->timeOutCounter = -1;
     initMemberListTable(memberNode);
      
-   cout << "\n initThisNode: id=" << id << ", port=" << port << endl;
+   cout << "initThisNode: id=" << id << ", port=" << port << endl;
 	
     return 0;
 }
