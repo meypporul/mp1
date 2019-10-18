@@ -273,7 +273,8 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 		case(GOSSIP): cout << " GOSSIP: size=" << size; break;
 		default: cout << " WTF!!!: size=" << size; return(false);
 	}
-	cout << " sender=" << &((Member *)env)->addr << "---------" << &node->addr << "--------" << (Member *)env)->addr << endl;	
+	cout << " sender=" << &((Member *)env)->addr << "---------" << &node->addr << "--------" << (Member *)env << endl;	
+	cout << "[" << this->par->getcurrtime() << "] enter recvCallBack of MP1Node:" << this->memberNode->addr.getAddress();
 	
 }
 
