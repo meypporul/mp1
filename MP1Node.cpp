@@ -177,7 +177,7 @@ int MP1Node::initThisNode(Address *joinaddr) {
  * DESCRIPTION: Join the distributed system
  */
 int MP1Node::introduceSelfToGroup(Address *joinaddr) {
-	MessagePayLoad *msg;
+	MessageHdr *msg;
 #ifdef DEBUGLOG
     static char s[1024];
 #endif
@@ -190,8 +190,8 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
         memberNode->inGroup = true;
     }
     else {
-        size_t msgsize = sizeof(MessagePayLoad) + sizeof(joinaddr->addr) + sizeof(long) + 1;
-        msg = (MessagePayLoad *) malloc(msgsize * sizeof(char));
+        size_t msgsize = sizeof(MessageHdr) + sizeof(joinaddr->addr) + sizeof(long) + 1;
+        msg = (MessageHdr *) malloc(msgsize * sizeof(char));
 
         // create JOINREQ message: format of data is {struct Address myaddr}
         msg->msgType = JOINREQ;
@@ -297,7 +297,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 		case(GOSSIP): cout << " GOSSIP: size=" << size; break;
 		default: cout << " WTF!!!: size=" << size; return(false);
 	}
-	cout << " sender= " << &((Member *)env)->addr << "--" << &node->addr << " || " &data-->addr << "--" << packetData << endl;	
+	cout << " sender= " << &((Member *)env)->addr << "--" << &node->addr << "--" << packetData << endl;	
 	cout << "On Currtime --> " << this->par->getcurrtime() << ", recvCallBack of Node:" << this->memberNode->addr.getAddress() << " --" << memberNode->inGroup << endl;
 	
 }
