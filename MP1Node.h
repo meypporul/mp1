@@ -57,6 +57,7 @@ private:
 	char NULLADDR[6];
 	
 	void printMessage(string callr_fn, Address *sendr, MessageHdr *msg, int size);
+	void printNodeData(string caller_fn);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);
