@@ -11,7 +11,7 @@
  * Note: You can change/add any functions in MP1Node.{h,cpp}
  */
 
-void MP1Node::printMessage(string callr_fn, Address *sendr, MessageHdr *msg, int size)
+void MP1Node::printMessage(string callr_fn, Address *sendr, MessagePayLoad *msg, int size)
 {
     MsgTypes msgType;
     //char *msg_chr;
@@ -177,7 +177,7 @@ int MP1Node::initThisNode(Address *joinaddr) {
  * DESCRIPTION: Join the distributed system
  */
 int MP1Node::introduceSelfToGroup(Address *joinaddr) {
-	MessageHdr *msg;
+	MessagePayLoad *msg;
 #ifdef DEBUGLOG
     static char s[1024];
 #endif
@@ -190,8 +190,8 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
         memberNode->inGroup = true;
     }
     else {
-        size_t msgsize = sizeof(MessageHdr) + sizeof(joinaddr->addr) + sizeof(long) + 1;
-        msg = (MessageHdr *) malloc(msgsize * sizeof(char));
+        size_t msgsize = sizeof(MessagePayLoad) + sizeof(joinaddr->addr) + sizeof(long) + 1;
+        msg = (MessagePayLoad *) malloc(msgsize * sizeof(char));
 
         // create JOINREQ message: format of data is {struct Address myaddr}
         msg->msgType = JOINREQ;
@@ -277,10 +277,10 @@ void MP1Node::checkMessages() {
 bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	
 	Member *node = (Member *) env;
-	MessageHdr *msg = (MessageHdr *)data;
+	MessagePayLoad *msg = (MessagePayLoad *)data;
 	char *packetData = (char *)(msg + 1);
 
-	if ( (unsigned)size < sizeof(MessageHdr) ) {
+	if ( (unsigned)size < sizeof(MessagePayLoad) ) {
 		#ifdef DEBUGLOG
 			log->LOG(&node->addr, "Faulty packet received - ignoring");
 			return false;
@@ -288,7 +288,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	}
 
 	#ifdef DEBUGLOG
-		log->LOG(&((Member *)env)->addr, "Received message type %d with %d Byte", msg->msgType, size - sizeof(MessageHdr));
+		log->LOG(&((Member *)env)->addr, "Received message type %d with %d Byte", msg->msgType, size - sizeof(MessagePayLoad));
 	#endif
 
 	switch(msg->msgType) {
@@ -317,6 +317,55 @@ void MP1Node::nodeLoopOps() {
 	this->printNodeData("nodeLoopOps");
 
     return;
+}
+
+/* Usage: Send a gossip message */
+
+int MP1Node::sendMessage(enum MsgTypes msgType, Address *dstAddr) {
+
+	MessageHdr *msg;
+	MessagePayLoad *mpl;
+	int n = 1;
+	
+	if (msgType != JOINREQ) {
+		size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
+		msg = (MessageHdr *) malloc(msgsize);
+		msg->msgType = msgType;
+		msg->nofmsg = n;
+		mpl = (MessagePayLoad *)(msg + 1);
+		mpl->id = *(int *)(&memberNode->addr.addr);
+		mpl->port = *(short *)(&memberNode->addr.addr[4]);
+		mpl->heartbeat = memberNode->heartbeat;
+		n += memberNode->memberList.size();
+		
+		for (vector<MemberListEntry>::iterator m = memberNode->memberList.begin(); m != memberNode->memberList.end(); ++m) {
+			mpl++;
+			if (par->getcurrtime() - m->timestamp <= memberNode->pingCounter ) {
+				mpl->id = m->id;
+				mpl->port = m->port;
+				mpl->heartbeat = m->heartbeat;
+			} else { 
+				mpl->id = *(int *)(&memberNode->addr.addr);
+				mpl->port = *(short *)(&memberNode->addr.addr[4]);
+				mpl->heartbeat = memberNode->heartbeat;
+			}
+		}
+	}
+	else{
+		size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
+		msg = (MessageHdr *) malloc(msgsize);
+		msg->msgType = msgType;
+		msg->nofmsg = n;
+		mpl = (MessagePayLoad *)(msg + 1);
+		mpl->id = *(int *)(&memberNode->addr.addr);
+		mpl->port = *(short *)(&memberNode->addr.addr[4]);
+		mpl->heartbeat = memberNode->heartbeat;
+	}
+
+	emulNet->ENsend(&memberNode->addr, dstAddr, (char *)msg, msgsize);
+	
+	free(msg);
+	return 0;
 }
 
 /**
