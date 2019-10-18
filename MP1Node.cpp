@@ -205,7 +205,7 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 
         // send JOINREQ message to introducer member
         emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
-	this->printMessage("introduceSelfToGroup", &this->memberNode->addr, msg, msgsize);
+	//this->printMessage("introduceSelfToGroup", &this->memberNode->addr, msg, sizeof(MessageHdr) + sizeof(joinaddr->addr) + sizeof(long) + 1);
 	    
         free(msg);
     }
@@ -326,9 +326,10 @@ int MP1Node::sendMessage(enum MsgTypes msgType, Address *dstAddr) {
 	MessageHdr *msg;
 	MessagePayLoad *mpl;
 	int n = 1;
+	size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
 	
 	if (msgType != JOINREQ) {
-		size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
+		
 		msg = (MessageHdr *) malloc(msgsize);
 		msg->msgType = msgType;
 		msg->nofmsg = n;
@@ -352,7 +353,7 @@ int MP1Node::sendMessage(enum MsgTypes msgType, Address *dstAddr) {
 		}
 	}
 	else{
-		size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
+		
 		msg = (MessageHdr *) malloc(msgsize);
 		msg->msgType = msgType;
 		msg->nofmsg = n;
