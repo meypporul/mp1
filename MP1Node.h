@@ -34,12 +34,20 @@ enum MsgTypes{
     GOSSIP
 };
 
+/**
+ * STRUCT NAME: MessageHdr
+ *
+ * DESCRIPTION: Header and content of a message
+ */
+typedef struct MessageHdr {
+	enum MsgTypes msgType;
+  int nofmsg; 
+} MessageHdr;
 
 /* Usage: Message Payload */
 
 typedef struct MessagePayLoad {
-    enum MsgTypes msgType;
-	int Nodeid;
+	int NodeId;
 	short port;
 	long heartbeat;
 } MessagePayLoad;
@@ -60,6 +68,7 @@ private:
 	
 	void printMessage(string callr_fn, Address *sendr, MessagePayLoad *msg, int size);
 	void printNodeData(string caller_fn);
+	int sendMessage(enum MsgTypes msgType, Address *dstAddr);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);
