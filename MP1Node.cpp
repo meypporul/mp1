@@ -42,6 +42,32 @@ void MP1Node::printMessage(string callr_fn, Address *sendr, MessageHdr *msg, int
     cout << endl;
 }
 
+void MP1Node::printNodeData(string caller_fn) {
+    cout << "<bbi>[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
+    cout << " data:";        
+    cout <<             "inGroup=" << this->memberNode->inGroup << "| ";
+    cout <<             "heartbeat=" << this->memberNode->heartbeat << "| "; 
+    cout <<             "nnb=" << this->memberNode->nnb << "| ";               
+    cout <<             "memberList: size=" << this->memberNode->memberList.size() << "| ";        
+    cout << endl;
+    cout << "<bbi>[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
+    cout << " data: memberList: ";        
+    cout << endl;
+    
+    // Cannot use this->memberNode->myPos iterator bc it messes up the caller_fn
+    size_t pos = 0;
+    for (pos = 0; pos < this->memberNode->memberList.size(); pos++) {
+        //thisMemberListEntry = this->memberNode->myPos;     
+        cout << "<bbi>[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
+        cout << " ";
+        cout << "pos=" << pos << "| ";
+        cout << "id="           << this->memberNode->memberList[pos].id << "| ";    
+        cout << "port="         << this->memberNode->memberList[pos].port << "| ";    
+        cout << "heartbeat="    << this->memberNode->memberList[pos].heartbeat << "| ";                
+        cout << "timestamp="    << this->memberNode->memberList[pos].timestamp << "| ";                            
+        cout << endl;
+    }
+}
 
 
 /**
@@ -214,7 +240,7 @@ void MP1Node::nodeLoop() {
 
     // Check my messages
     checkMessages();
-
+	
     // Wait until you're in the group...
     if( !memberNode->inGroup ) {
     	return;
@@ -273,8 +299,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 		case(GOSSIP): cout << " GOSSIP: size=" << size; break;
 		default: cout << " WTF!!!: size=" << size; return(false);
 	}
-	cout << " sender=" << &((Member *)env)->addr << "----" << &node->addr << "---" << "---"  *data <<
-		<< (Member *)env << "---" << packetData << endl;	
+	cout << " sender=" << &((Member *)env)->addr << "----" << &node->addr << "---" << "---" (Member *)env << "---" << packetData << endl;	
 	cout << "On Currtime --> " << this->par->getcurrtime() << ", recvCallBack of Node:" << this->memberNode->addr.getAddress() << " --" << memberNode->inGroup << endl;
 	
 }
@@ -291,6 +316,7 @@ void MP1Node::nodeLoopOps() {
 	/*
 	 * Your code goes here
 	 */
+	this->printNodeData("nodeLoopOps");
 
     return;
 }
