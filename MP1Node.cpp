@@ -277,10 +277,10 @@ void MP1Node::checkMessages() {
 bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	
 	Member *node = (Member *) env;
-	MessagePayLoad *msg = (MessagePayLoad *)data;
+	MessageHdr *msg = (MessageHdr *)data;
 	char *packetData = (char *)(msg + 1);
 
-	if ( (unsigned)size < sizeof(MessagePayLoad) ) {
+	if ( (unsigned)size < sizeof(MessageHdr) ) {
 		#ifdef DEBUGLOG
 			log->LOG(&node->addr, "Faulty packet received - ignoring");
 			return false;
@@ -288,7 +288,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	}
 
 	#ifdef DEBUGLOG
-		log->LOG(&((Member *)env)->addr, "Received message type %d with %d Byte", msg->msgType, size - sizeof(MessagePayLoad));
+		log->LOG(&((Member *)env)->addr, "Received message type %d with %d Byte", msg->msgType, size - sizeof(MessageHdr));
 	#endif
 
 	switch(msg->msgType) {
