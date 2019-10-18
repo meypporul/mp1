@@ -256,7 +256,6 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	MessageHdr *msg = (MessageHdr *)data;
 	char *packetData = (char *)(msg + 1);
 
-	//if ( (unsigned)size <  (strlen(packetData)+1) ) {
 	if ( (unsigned)size < sizeof(MessageHdr) ) {
 		#ifdef DEBUGLOG
 			log->LOG(&node->addr, "Faulty packet received - ignoring");
@@ -274,7 +273,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 		case(GOSSIP): cout << " GOSSIP: size=" << size; break;
 		default: cout << " WTF!!!: size=" << size; return(false);
 	}
-	cout << " sender=" << &((Member *)env)->addr << "---------" << &node->addr << endl;	
+	cout << " sender=" << &((Member *)env)->addr << "---------" << &node->addr << "--------" << (Member *)env)->addr << endl;	
 	
 }
 
