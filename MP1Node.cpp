@@ -159,10 +159,11 @@ int MP1Node::initThisNode(Address *joinaddr) {
 	memberNode->nnb = 0;
 	memberNode->heartbeat = 0;
 	memberNode->pingCounter = TFAIL;
-	memberNode->timeOutCounter = -1;
+	//memberNode->timeOutCounter = -1;
+	memberNode->timeOutCounter = TREMOVE; //Set Actual time out
     initMemberListTable(memberNode);
      
-   cout << "initThisNode: id=" << id << ", port=" << port << endl;
+   cout << endl << "initThisNode: id=" << id << ", port=" << port << endl;
 	
     return 0;
 }
@@ -202,7 +203,7 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 		MessageHdr *msg;
 		MessagePayLoad *mpl;
 		int n = 1;
-		size_t msgsize = sizeof(MessageHdr) + 1 * sizeof(MessagePayLoad);
+		size_t msgsize = sizeof(MessageHdr) + (n * sizeof(MessagePayLoad));
 
 		msg = (MessageHdr *) malloc(msgsize);
 		msg->msgType = JOINREQ;
@@ -211,7 +212,8 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 		mpl->NodeId = *(int *)(&memberNode->addr.addr);
 		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
 		mpl->HeartBeatCntr = memberNode->heartbeat;
-
+		
+		cout << "introduceSelfToGroup --> Trying to join... " << &memberNode->addr << " --> heartbeat" << memberNode->heartbeat <<endl;
 		this->printNodeData("introduceSelfToGroup");
 
 		
@@ -307,10 +309,10 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	#endif
 
 	switch(msg->msgType) {
-		case(JOINREQ): cout << "JOINREQ: size=" << size <<endl; this->printNodeData("recvCallBack"); break;
-		case(JOINREP): cout << "JOINREP: size=" << size<<endl; this->printNodeData("recvCallBack"); break;
-		case(GOSSIP): cout << "GOSSIP: size=" << size<<endl; this->printNodeData("recvCallBack"); break;
-		default: cout << "WrongMessageType: size=" << size<<endl; return(false);
+		case(JOINREQ): cout << "JOINREQ: size=" << size; this->printNodeData("recvCallBack"); break;
+		case(JOINREP): cout << "JOINREP: size=" << size; this->printNodeData("recvCallBack"); break;
+		case(GOSSIP): cout << "GOSSIP: size=" << size; this->printNodeData("recvCallBack"); break;
+		default: cout << "WrongMessageType: size=" << size; return(false);
 	}
 	
 	
