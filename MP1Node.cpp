@@ -315,7 +315,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 			cout << "JOINREQ: size=" << size; 
 			Address *srcAddr = (Address *)mpl;
 			for (int i = 0; i < msg->MemberEntry; i++) {
-				processJoinReq(mpl->id, mpl->port, mpl->heartbeat);
+				processJoinReq(mpl->NodeId, mpl->Port, mpl->HeartBeatCntr);
 				mpl++;
 			}
 			this->printNodeData("recvCallBack"); 
