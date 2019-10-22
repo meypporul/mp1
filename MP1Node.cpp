@@ -320,9 +320,19 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 			}
 			this->printNodeData("recvCallBack"); 
 		break;
-		case(JOINREP): cout << "JOINREP: size=" << size; memberNode->inGroup = true; this->printNodeData("recvCallBack"); break;
-		case(GOSSIP): cout << "GOSSIP: size=" << size; this->printNodeData("recvCallBack"); break;
-		default: cout << "WrongMessageType: size=" << size; return(false);
+		case(JOINREP): 
+		
+			cout << "JOINREP: size=" << size; 
+			memberNode->inGroup = true; 
+			this->printNodeData("recvCallBack"); 
+		break;
+		case(GOSSIP): 
+			cout << "GOSSIP: size=" << size; 
+			this->printNodeData("recvCallBack"); 
+		break;
+		default: 
+			cout << "WrongMessageType: size=" << size; 
+		return(false);
 	}
 	
 	
