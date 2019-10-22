@@ -190,21 +190,36 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
         memberNode->inGroup = true;
     }
     else {
-        size_t msgsize = sizeof(MessageHdr) + sizeof(joinaddr->addr) + sizeof(long) + 1;
-        msg = (MessageHdr *) malloc(msgsize * sizeof(char));
+        //size_t msgsize = sizeof(MessageHdr) + sizeof(joinaddr->addr) + sizeof(long) + 1;
+        //msg = (MessageHdr *) malloc(msgsize * sizeof(char));
 
         // create JOINREQ message: format of data is {struct Address myaddr}
-        msg->msgType = JOINREQ;
-        memcpy((char *)(msg+1), &memberNode->addr.addr, sizeof(memberNode->addr.addr));
-        memcpy((char *)(msg+1) + 1 + sizeof(memberNode->addr.addr), &memberNode->heartbeat, sizeof(long));
+        //msg->msgType = JOINREQ;
+        //memcpy((char *)(msg+1), &memberNode->addr.addr, sizeof(memberNode->addr.addr));
+        //memcpy((char *)(msg+1) + 1 + sizeof(memberNode->addr.addr), &memberNode->heartbeat, sizeof(long));
 
 #ifdef DEBUGLOG
         sprintf(s, "Trying to join...");
         log->LOG(&memberNode->addr, s);
 #endif
 
+		MessageHdr *msg;
+		MessagePayLoad *mpl;
+		size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
+
+		msg = (MessageHdr *) malloc(msgsize);
+		msg->msgType = JOINREQ;
+		msg->MemberEntry = 1;
+		mpl = (MessagePayLoad *)(msg + 1);
+		mpl->NodeId = *(int *)(&memberNode->addr.addr);
+		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
+		mpl->HeartBeatCntr = memberNode->heartbeat;
+
+		emulNet->ENsend(&memberNode->addr, dstAddr, (char *)msg, msgsize);
+	
+
         // send JOINREQ message to introducer member
-        emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
+        //emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
 	//this->printMessage("introduceSelfToGroup", &this->memberNode->addr, msg, sizeof(MessageHdr) + sizeof(joinaddr->addr) + sizeof(long) + 1);
 	    
         free(msg);
@@ -321,7 +336,7 @@ void MP1Node::nodeLoopOps() {
 
 /* Usage: Send a gossip message */
 
-int MP1Node::sendMessage(enum MsgTypes msgType, Address *dstAddr) {
+int MP1Node::GossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 
 	MessageHdr *msg;
 	MessagePayLoad *mpl;
@@ -332,23 +347,23 @@ int MP1Node::sendMessage(enum MsgTypes msgType, Address *dstAddr) {
 		
 		msg = (MessageHdr *) malloc(msgsize);
 		msg->msgType = msgType;
-		msg->nofmsg = n;
+		msg->MemberEntry = n;
 		mpl = (MessagePayLoad *)(msg + 1);
 		mpl->NodeId = *(int *)(&memberNode->addr.addr);
-		mpl->port = *(short *)(&memberNode->addr.addr[4]);
-		mpl->heartbeat = memberNode->heartbeat;
+		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
+		mpl->HeartBeatCntr = memberNode->heartbeat;
 		n += memberNode->memberList.size();
 		
 		for (vector<MemberListEntry>::iterator m = memberNode->memberList.begin(); m != memberNode->memberList.end(); ++m) {
 			mpl++;
 			if (par->getcurrtime() - m->timestamp <= memberNode->pingCounter ) {
 				mpl->NodeId = m->id;
-				mpl->port = m->port;
-				mpl->heartbeat = m->heartbeat;
+				mpl->Port = m->port;
+				mpl->HeartBeatCntr = m->heartbeat;
 			} else { 
 				mpl->NodeId = *(int *)(&memberNode->addr.addr);
-				mpl->port = *(short *)(&memberNode->addr.addr[4]);
-				mpl->heartbeat = memberNode->heartbeat;
+				mpl->Port = *(short *)(&memberNode->addr.addr[4]);
+				mpl->HeartBeatCntr = memberNode->heartbeat;
 			}
 		}
 	}
@@ -356,11 +371,11 @@ int MP1Node::sendMessage(enum MsgTypes msgType, Address *dstAddr) {
 		
 		msg = (MessageHdr *) malloc(msgsize);
 		msg->msgType = msgType;
-		msg->nofmsg = n;
+		msg->MemberEntry = n;
 		mpl = (MessagePayLoad *)(msg + 1);
 		mpl->NodeId = *(int *)(&memberNode->addr.addr);
-		mpl->port = *(short *)(&memberNode->addr.addr[4]);
-		mpl->heartbeat = memberNode->heartbeat;
+		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
+		mpl->HeartBeatCntr = memberNode->heartbeat;
 	}
 
 	emulNet->ENsend(&memberNode->addr, dstAddr, (char *)msg, msgsize);
