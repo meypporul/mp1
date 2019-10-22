@@ -41,15 +41,15 @@ enum MsgTypes{
  */
 typedef struct MessageHdr {
 	enum MsgTypes msgType;
-  int nofmsg; 
+  int MemberEntry; 
 } MessageHdr;
 
 /* Usage: Message Payload */
 
 typedef struct MessagePayLoad {
 	int NodeId;
-	short port;
-	long heartbeat;
+	short Port;
+	long HeartBeatCntr;
 } MessagePayLoad;
 
 
@@ -68,7 +68,7 @@ private:
 	
 	void printMessage(string callr_fn, Address *sendr, MessagePayLoad *msg, int size);
 	void printNodeData(string caller_fn);
-	int sendMessage(enum MsgTypes msgType, Address *dstAddr);
+	int GossipMemberList(enum MsgTypes msgType, Address *dstAddr);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);
