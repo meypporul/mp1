@@ -174,7 +174,7 @@ int MP1Node::initThisNode(Address *joinaddr) {
  * DESCRIPTION: Join the distributed system
  */
 int MP1Node::introduceSelfToGroup(Address *joinaddr) {
-	MessageHdr *msg;
+	
 #ifdef DEBUGLOG
     static char s[1024];
 #endif
@@ -298,6 +298,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	MessageHdr *msg = (MessageHdr *)data;
 	//char *MessagePayLoad = (char *)(msg + 1);
 	MessagePayLoad *mpl = (MessagePayLoad *)(msg + 1);
+	Address *srcAddr = (Address *)mpl;
 
 	if ( (unsigned)size < sizeof(MessageHdr) ) {
 		#ifdef DEBUGLOG
@@ -311,30 +312,33 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	#endif
 
 	switch(msg->msgType) {
-		case(JOINREQ): 
-			cout << "JOINREQ: size=" << size; 
-			Address *srcAddr = (Address *)mpl;
+		case(JOINREQ):
+		{
+			cout << "JOINREQ: size=" << size <<endl; 
 			for (int i = 0; i < msg->MemberEntry; i++) {
 				processJoinReq(mpl->NodeId, mpl->Port, mpl->HeartBeatCntr);
 				mpl++;
 			}
-			this->printNodeData("recvCallBack"); 
-		break;
+			spreadGossipMemberList(JOINREP, srcAddr);
+			
+			break;
+		}
 		case(JOINREP): 
-		
-			cout << "JOINREP: size=" << size; 
+		{
+			cout << "JOINREP: size=" << size <<endl; 
 			memberNode->inGroup = true; 
-			this->printNodeData("recvCallBack"); 
-		break;
+			//this->printNodeData("recvCallBack"); 
+			break;
+		}
 		case(GOSSIP): 
-			cout << "GOSSIP: size=" << size; 
-			this->printNodeData("recvCallBack"); 
-		break;
-		default: 
-			cout << "WrongMessageType: size=" << size; 
-		return(false);
+		{
+			cout << "GOSSIP: size=" << size <<endl; 
+			//this->printNodeData("recvCallBack"); 
+			break;
+		}
+		default: cout << "WrongMessageType: size=" << size; return(false);
 	}
-	
+	return(true);
 	
 }
 
@@ -357,11 +361,13 @@ void MP1Node::nodeLoopOps() {
 
 /* Usage: Send a gossip message */
 
-int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 
+
+int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
+/*
 	MessageHdr *msg;
 	MessagePayLoad *mpl;
-	int n;
+	int n = 0;
 	n += memberNode->memberList.size();
 	size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
 	
@@ -372,7 +378,8 @@ int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 	mpl->NodeId = *(int *)(&memberNode->addr.addr);
 	mpl->Port = *(short *)(&memberNode->addr.addr[4]);
 	mpl->HeartBeatCntr = memberNode->heartbeat;
-	n += memberNode->memberList.size();
+	
+	cout << "Inside spreadGossipMemberList-->" <<endl;
 	
 	for (vector<MemberListEntry>::iterator m = memberNode->memberList.begin(); m != memberNode->memberList.end(); ++m) {
 		mpl++;
@@ -380,17 +387,62 @@ int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 			mpl->NodeId = m->id;
 			mpl->Port = m->port;
 			mpl->HeartBeatCntr = m->heartbeat;
+			cout << "if --> " << m->id << m->port << m->heartbeat <<endl;
 		} else { 
 			mpl->NodeId = *(int *)(&memberNode->addr.addr);
 			mpl->Port = *(short *)(&memberNode->addr.addr[4]);
 			mpl->HeartBeatCntr = memberNode->heartbeat;
+			
+			cout << "else" << mpl->NodeId << mpl->Port << mpl->HeartBeatCntr <<endl;
+		}
+	}
+
+	cout << "Before ENsend spreadGossipMemberList-->" <<endl;
+	
+	log->LOG(dstAddr, "Destination address is %d", msg->MemberEntry);
+	
+	emulNet->ENsend(&memberNode->addr, dstAddr, (char *)msg, msgsize);
+	
+	cout << "After ENsend spreadGossipMemberList-->" <<endl;
+	
+	free(msg);
+	return 0;
+	
+	*/
+	
+	MessageHdr *msg;
+	MessagePayLoad *hbe;
+	int n = 1;
+	if (msgType != JOINREQ) {
+		n += memberNode->memberList.size();
+	}
+
+	size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
+	msg = (MessageHdr *) malloc(msgsize);
+	msg->msgType = msgType;
+	msg->MemberEntry = n;
+	hbe = (MessagePayLoad *)(msg + 1);
+	hbe->NodeId = *(int *)(&memberNode->addr.addr);
+	hbe->Port = *(short *)(&memberNode->addr.addr[4]);
+	hbe->HeartBeatCntr = memberNode->heartbeat;
+	if (msgType != JOINREQ) {
+		for (vector<MemberListEntry>::iterator m = memberNode->memberList.begin(); m != memberNode->memberList.end(); ++m) {
+			hbe++;
+			if (par->getcurrtime() - m->timestamp <= memberNode->pingCounter ) {
+				hbe->NodeId = m->id;
+				hbe->Port = m->port;
+				hbe->HeartBeatCntr = m->heartbeat;
+			} else { // replace expired entries with own information
+				hbe->NodeId = *(int *)(&memberNode->addr.addr);
+				hbe->Port = *(short *)(&memberNode->addr.addr[4]);
+				hbe->HeartBeatCntr = memberNode->heartbeat;
+			}
 		}
 	}
 
 	emulNet->ENsend(&memberNode->addr, dstAddr, (char *)msg, msgsize);
-	
 	free(msg);
-	return 0;
+	return 0;	
 }
 
 /* Usage: processing Join request by introducer */
@@ -405,7 +457,9 @@ void MP1Node::processJoinReq(int id, short port, long HeartBeatCntr) {
 		*(short *)(&srcAddr->addr[4]) = port;
 		log->logNodeAdd(&(memberNode->addr), srcAddr);
 		
-		spreadGossipMemberList(JOINREP, srcAddr);
+		free(srcAddr);
+		
+		cout << "Send spreadGossipMemberList to -->" << "id=" << id << "Port=" << port <<endl;
 }
 
 /**
