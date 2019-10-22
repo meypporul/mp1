@@ -215,7 +215,21 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
 		mpl->HeartBeatCntr = memberNode->heartbeat;
 
-		emulNet->ENsend(&memberNode->addr, dstAddr, (char *)msg, msgsize);
+		cout <<             "inGroup=" << this->memberNode->inGroup << "| ";
+		cout <<             "heartbeat=" << this->memberNode->heartbeat << "| "; 
+		cout <<             "pingCounter=" << memberNode->pingCounter << "| "; 
+		cout <<             "timeOutCounter=" << memberNode->timeOutCounter << "| "; 
+		cout <<             "nnb=" << this->memberNode->nnb << "| ";               
+		cout <<             "memberList: size=" << this->memberNode->memberList.size() << endl;      
+
+		cout <<             "nothis-inGroup=" << memberNode->inGroup << "| ";
+		cout <<             "nothis-heartbeat=" << memberNode->heartbeat << "| "; 
+		cout <<             "nothis-pingCounter=" << memberNode->pingCounter << "| "; 
+		cout <<             "nothis-timeOutCounter=" << memberNode->timeOutCounter << "| "; 
+		cout <<             "nothis-nnb=" << memberNode->nnb << "| ";               
+		cout <<             "nothis-memberList: size=" << memberNode->memberList.size() << endl;      		
+		
+		emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
 	
 
         // send JOINREQ message to introducer member
@@ -329,7 +343,7 @@ void MP1Node::nodeLoopOps() {
 	/*
 	 * Your code goes here
 	 */
-	this->printNodeData("nodeLoopOps");
+	//this->printNodeData("nodeLoopOps");
 
     return;
 }
