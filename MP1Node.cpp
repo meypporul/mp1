@@ -45,19 +45,19 @@ void MP1Node::printMessage(string callr_fn, Address *sendr, MessagePayLoad *msg,
 void MP1Node::printNodeData(string caller_fn) {
     cout << "@Time[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node.cpp:" << endl;
 	cout << "[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node-Addr:" << memberNode->addr.addr << "MP1Node-Port:" << memberNode->addr.addr[4] << endl;        
-    cout << "inGroup=" << this->memberNode->inGroup << "| " << "heartbeat=" << this->memberNode->heartbeat << "| " << "pingCounter=" << memberNode->pingCounter << "| ";
-	cout << "timeOutCounter=" << memberNode->timeOutCounter << "| " < "nnb=" << this->memberNode->nnb << "| " "memberList: size=" << this->memberNode->memberList.size() << endl;
+    cout << "inGroup=" << memberNode->inGroup << "| " << "heartbeat=" << memberNode->heartbeat << "| " << "pingCounter=" << memberNode->pingCounter << "| ";
+	cout << "timeOutCounter=" << memberNode->timeOutCounter << "| " << "nnb=" << memberNode->nnb << "| " "memberList: size=" << memberNode->memberList.size() << endl;
     cout << endl;
     
     size_t pos = 0;
-    for (pos = 0; pos < this->memberNode->memberList.size(); pos++) {
-        cout << "[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
+    for (pos = 0; pos < memberNode->memberList.size(); pos++) {
+        cout << "[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node:" << memberNode->addr.getAddress();
         cout << " ";
         cout << "pos=" << pos << "| ";
-        cout << "id="           << this->memberNode->memberList[pos].id << "| ";    
-        cout << "port="         << this->memberNode->memberList[pos].port << "| ";    
-        cout << "heartbeat="    << this->memberNode->memberList[pos].heartbeat << "| ";                
-        cout << "timestamp="    << this->memberNode->memberList[pos].timestamp << "| ";                            
+        cout << "id="           << memberNode->memberList[pos].id << "| ";    
+        cout << "port="         << memberNode->memberList[pos].port << "| ";    
+        cout << "heartbeat="    << memberNode->memberList[pos].heartbeat << "| ";                
+        cout << "timestamp="    << memberNode->memberList[pos].timestamp << "| ";                            
         cout << endl;
     }
 	if (this->memberNode->memberList.size() == 0)
@@ -212,8 +212,11 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 		mpl->NodeId = *(int *)(&memberNode->addr.addr);
 		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
 		mpl->HeartBeatCntr = memberNode->heartbeat;
-		
-		this->printNodeData("nodeLoopOps");
+
+		cout << "MP1Node.cpp" << endl;
+		cout << "inGroup=" << this->memberNode->inGroup << "| " << "heartbeat=" << this->memberNode->heartbeat << "| " << "pingCounter=" << memberNode->pingCounter << "| ";
+		cout << "timeOutCounter=" << memberNode->timeOutCounter << "| " < "nnb=" << this->memberNode->nnb << "| " "memberList: size=" << this->memberNode->memberList.size() << endl;
+
 		
 		emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
 	
