@@ -43,7 +43,7 @@ void MP1Node::printMessage(string callr_fn, Address *sendr, MessagePayLoad *msg,
 }
 
 void MP1Node::printNodeData(string caller_fn) {
-    cout << "@Time[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node.cpp:" << endl;
+    cout << endl << "@Time[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node.cpp:" << endl;
 	cout << "[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node-Addr:" << memberNode->addr.getAddress() << endl;        
     cout << "inGroup=" << memberNode->inGroup << "| " << "heartbeat=" << memberNode->heartbeat << "| " << "pingCounter=" << memberNode->pingCounter << "| ";
 	cout << "timeOutCounter=" << memberNode->timeOutCounter << "| " << "nnb=" << memberNode->nnb << "| " "memberList: size=" << memberNode->memberList.size() << endl;
@@ -212,9 +212,7 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
 		mpl->HeartBeatCntr = memberNode->heartbeat;
 
-		cout << "MP1Node.cpp" << endl;
-		cout << "inGroup=" << this->memberNode->inGroup << "| " << "heartbeat=" << this->memberNode->heartbeat << "| " << "pingCounter=" << memberNode->pingCounter << "| ";
-		cout << "timeOutCounter=" << memberNode->timeOutCounter << "| " < "nnb=" << this->memberNode->nnb << "| " "memberList: size=" << this->memberNode->memberList.size() << endl;
+		this->printNodeData("introduceSelfToGroup");
 
 		
 		emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
@@ -309,9 +307,9 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	#endif
 
 	switch(msg->msgType) {
-		case(JOINREQ): cout << "JOINREQ: size=" << size <<endl; this->printNodeData("nodeLoopOps"); break;
-		case(JOINREP): cout << "JOINREP: size=" << size<<endl; this->printNodeData("nodeLoopOps"); break;
-		case(GOSSIP): cout << "GOSSIP: size=" << size<<endl; this->printNodeData("nodeLoopOps"); break;
+		case(JOINREQ): cout << "JOINREQ: size=" << size <<endl; this->printNodeData("recvCallBack"); break;
+		case(JOINREP): cout << "JOINREP: size=" << size<<endl; this->printNodeData("recvCallBack"); break;
+		case(GOSSIP): cout << "GOSSIP: size=" << size<<endl; this->printNodeData("recvCallBack"); break;
 		default: cout << "WrongMessageType: size=" << size<<endl; return(false);
 	}
 	
