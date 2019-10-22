@@ -44,10 +44,9 @@ void MP1Node::printMessage(string callr_fn, Address *sendr, MessagePayLoad *msg,
 
 void MP1Node::printNodeData(string caller_fn) {
     cout << "@Time[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node.cpp:" << endl;
-	cout << "[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node-Addr:" << memberNode->addr.addr << "MP1Node-Port:" << memberNode->addr.addr[4] << endl;        
+	cout << "[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node-Addr:" << memberNode->addr.getAddress() << endl;        
     cout << "inGroup=" << memberNode->inGroup << "| " << "heartbeat=" << memberNode->heartbeat << "| " << "pingCounter=" << memberNode->pingCounter << "| ";
 	cout << "timeOutCounter=" << memberNode->timeOutCounter << "| " << "nnb=" << memberNode->nnb << "| " "memberList: size=" << memberNode->memberList.size() << endl;
-    cout << endl;
     
     size_t pos = 0;
     for (pos = 0; pos < memberNode->memberList.size(); pos++) {
@@ -61,7 +60,7 @@ void MP1Node::printNodeData(string caller_fn) {
         cout << endl;
     }
 	if (this->memberNode->memberList.size() == 0)
-		cout << "Nothng in MemberList Table" <<endl;
+		cout << "Nothng in MemberList Table" <<endl<<endl;
 }
 
 
@@ -310,10 +309,10 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	#endif
 
 	switch(msg->msgType) {
-		case(JOINREQ): cout << "JOINREQ: size=" << size; this->printNodeData("nodeLoopOps"); break;
-		case(JOINREP): cout << "JOINREP: size=" << size; this->printNodeData("nodeLoopOps"); break;
-		case(GOSSIP): cout << "GOSSIP: size=" << size; this->printNodeData("nodeLoopOps"); break;
-		default: cout << "WrongMessageType: size=" << size; return(false);
+		case(JOINREQ): cout << "JOINREQ: size=" << size <<endl; this->printNodeData("nodeLoopOps"); break;
+		case(JOINREP): cout << "JOINREP: size=" << size<<endl; this->printNodeData("nodeLoopOps"); break;
+		case(GOSSIP): cout << "GOSSIP: size=" << size<<endl; this->printNodeData("nodeLoopOps"); break;
+		default: cout << "WrongMessageType: size=" << size<<endl; return(false);
 	}
 	
 	
