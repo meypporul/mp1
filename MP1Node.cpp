@@ -295,7 +295,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	
 	Member *node = (Member *) env;
 	MessageHdr *msg = (MessageHdr *)data;
-	char *packetData = (char *)(msg + 1);
+	char *MessagePayLoad = (char *)(msg + 1);
 
 	if ( (unsigned)size < sizeof(MessageHdr) ) {
 		#ifdef DEBUGLOG
@@ -310,7 +310,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 
 	switch(msg->msgType) {
 		case(JOINREQ): cout << "JOINREQ: size=" << size; this->printNodeData("recvCallBack"); break;
-		case(JOINREP): cout << "JOINREP: size=" << size; this->printNodeData("recvCallBack"); break;
+		case(JOINREP): cout << "JOINREP: size=" << size; memberNode->inGroup = true; this->printNodeData("recvCallBack"); break;
 		case(GOSSIP): cout << "GOSSIP: size=" << size; this->printNodeData("recvCallBack"); break;
 		default: cout << "WrongMessageType: size=" << size; return(false);
 	}
@@ -337,52 +337,55 @@ void MP1Node::nodeLoopOps() {
 
 /* Usage: Send a gossip message */
 
-int MP1Node::GossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
+int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 
 	MessageHdr *msg;
 	MessagePayLoad *mpl;
-	int n = 1;
+	int n;
+	n += memberNode->memberList.size();
 	size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
 	
-	if (msgType != JOINREQ) {
-		
-		msg = (MessageHdr *) malloc(msgsize);
-		msg->msgType = msgType;
-		msg->MemberEntry = n;
-		mpl = (MessagePayLoad *)(msg + 1);
-		mpl->NodeId = *(int *)(&memberNode->addr.addr);
-		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
-		mpl->HeartBeatCntr = memberNode->heartbeat;
-		n += memberNode->memberList.size();
-		
-		for (vector<MemberListEntry>::iterator m = memberNode->memberList.begin(); m != memberNode->memberList.end(); ++m) {
-			mpl++;
-			if (par->getcurrtime() - m->timestamp <= memberNode->pingCounter ) {
-				mpl->NodeId = m->id;
-				mpl->Port = m->port;
-				mpl->HeartBeatCntr = m->heartbeat;
-			} else { 
-				mpl->NodeId = *(int *)(&memberNode->addr.addr);
-				mpl->Port = *(short *)(&memberNode->addr.addr[4]);
-				mpl->HeartBeatCntr = memberNode->heartbeat;
-			}
+	msg = (MessageHdr *) malloc(msgsize);
+	msg->msgType = msgType;
+	msg->MemberEntry = n;
+	mpl = (MessagePayLoad *)(msg + 1);
+	mpl->NodeId = *(int *)(&memberNode->addr.addr);
+	mpl->Port = *(short *)(&memberNode->addr.addr[4]);
+	mpl->HeartBeatCntr = memberNode->heartbeat;
+	n += memberNode->memberList.size();
+	
+	for (vector<MemberListEntry>::iterator m = memberNode->memberList.begin(); m != memberNode->memberList.end(); ++m) {
+		mpl++;
+		if (par->getcurrtime() - m->timestamp <= memberNode->pingCounter ) {
+			mpl->NodeId = m->id;
+			mpl->Port = m->port;
+			mpl->HeartBeatCntr = m->heartbeat;
+		} else { 
+			mpl->NodeId = *(int *)(&memberNode->addr.addr);
+			mpl->Port = *(short *)(&memberNode->addr.addr[4]);
+			mpl->HeartBeatCntr = memberNode->heartbeat;
 		}
-	}
-	else{
-		
-		msg = (MessageHdr *) malloc(msgsize);
-		msg->msgType = msgType;
-		msg->MemberEntry = n;
-		mpl = (MessagePayLoad *)(msg + 1);
-		mpl->NodeId = *(int *)(&memberNode->addr.addr);
-		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
-		mpl->HeartBeatCntr = memberNode->heartbeat;
 	}
 
 	emulNet->ENsend(&memberNode->addr, dstAddr, (char *)msg, msgsize);
 	
 	free(msg);
 	return 0;
+}
+
+/* Usage: processing Join request by introducer */
+void MP1Node::processJoinReq(int id, short port, long HeartBeatCntr) {
+
+		// process the new NODE
+		MemberListEntry *newMember = new MemberListEntry(id, port, HeartBeatCntr, par->getcurrtime());
+		memberNode->memberList.insert(memberNode->memberList.begin(), *newMember);
+
+		Address *srcAddr = (Address *)malloc(sizeof(Address));
+		*(int *)(&srcAddr->addr[0]) = id;
+		*(short *)(&srcAddr->addr[4]) = port;
+		log->logNodeAdd(&(memberNode->addr), srcAddr);
+		
+		spreadGossipMemberList(JOINREP, srcAddr);
 }
 
 /**
