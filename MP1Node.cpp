@@ -43,15 +43,10 @@ void MP1Node::printMessage(string callr_fn, Address *sendr, MessagePayLoad *msg,
 }
 
 void MP1Node::printNodeData(string caller_fn) {
-    cout << "[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
-    cout << " data:";        
-    cout <<             "inGroup=" << this->memberNode->inGroup << "| ";
-    cout <<             "heartbeat=" << this->memberNode->heartbeat << "| "; 
-    cout <<             "nnb=" << this->memberNode->nnb << "| ";               
-    cout <<             "memberList: size=" << this->memberNode->memberList.size() << "| ";        
-    cout << endl;
-    cout << "[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node:" << this->memberNode->addr.getAddress();
-    cout << " data: memberList: ";        
+    cout << "@Time[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node.cpp:" << endl;
+	cout << "[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node-Addr:" << memberNode->addr.addr << "MP1Node-Port:" << memberNode->addr.addr[4] << endl;        
+    cout << "inGroup=" << this->memberNode->inGroup << "| " << "heartbeat=" << this->memberNode->heartbeat << "| " << "pingCounter=" << memberNode->pingCounter << "| ";
+	cout << "timeOutCounter=" << memberNode->timeOutCounter << "| " < "nnb=" << this->memberNode->nnb << "| " "memberList: size=" << this->memberNode->memberList.size() << endl;
     cout << endl;
     
     size_t pos = 0;
@@ -65,6 +60,8 @@ void MP1Node::printNodeData(string caller_fn) {
         cout << "timestamp="    << this->memberNode->memberList[pos].timestamp << "| ";                            
         cout << endl;
     }
+	if (this->memberNode->memberList.size() == 0)
+		cout << "Nothng in MemberList Table" <<endl;
 }
 
 
@@ -205,7 +202,8 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 
 		MessageHdr *msg;
 		MessagePayLoad *mpl;
-		size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
+		int n = 1;
+		size_t msgsize = sizeof(MessageHdr) + 1 * sizeof(MessagePayLoad);
 
 		msg = (MessageHdr *) malloc(msgsize);
 		msg->msgType = JOINREQ;
@@ -215,19 +213,10 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
 		mpl->HeartBeatCntr = memberNode->heartbeat;
 
-		cout <<             "inGroup=" << this->memberNode->inGroup << "| ";
-		cout <<             "heartbeat=" << this->memberNode->heartbeat << "| "; 
-		cout <<             "pingCounter=" << memberNode->pingCounter << "| "; 
-		cout <<             "timeOutCounter=" << memberNode->timeOutCounter << "| "; 
-		cout <<             "nnb=" << this->memberNode->nnb << "| ";               
-		cout <<             "memberList: size=" << this->memberNode->memberList.size() << endl;      
+		cout << "MP1Node.cpp" << endl;
+		cout << "inGroup=" << this->memberNode->inGroup << "| " << "heartbeat=" << this->memberNode->heartbeat << "| " << "pingCounter=" << memberNode->pingCounter << "| ";
+		cout << "timeOutCounter=" << memberNode->timeOutCounter << "| " < "nnb=" << this->memberNode->nnb << "| " "memberList: size=" << this->memberNode->memberList.size() << endl;
 
-		cout <<             "nothis-inGroup=" << memberNode->inGroup << "| ";
-		cout <<             "nothis-heartbeat=" << memberNode->heartbeat << "| "; 
-		cout <<             "nothis-pingCounter=" << memberNode->pingCounter << "| "; 
-		cout <<             "nothis-timeOutCounter=" << memberNode->timeOutCounter << "| "; 
-		cout <<             "nothis-nnb=" << memberNode->nnb << "| ";               
-		cout <<             "nothis-memberList: size=" << memberNode->memberList.size() << endl;      		
 		
 		emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
 	
@@ -321,13 +310,12 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	#endif
 
 	switch(msg->msgType) {
-		case(JOINREQ): cout << " JOINREQ: size=" << size; break;
-		case(JOINREP): cout << " JOINREP: size=" << size; break;
-		case(GOSSIP): cout << " GOSSIP: size=" << size; break;
-		default: cout << " WTF!!!: size=" << size; return(false);
+		case(JOINREQ): cout << "JOINREQ: size=" << size; this->printNodeData("nodeLoopOps"); break;
+		case(JOINREP): cout << "JOINREP: size=" << size; this->printNodeData("nodeLoopOps"); break;
+		case(GOSSIP): cout << "GOSSIP: size=" << size; this->printNodeData("nodeLoopOps"); break;
+		default: cout << "WrongMessageType: size=" << size; return(false);
 	}
-	cout << " sender= " << &((Member *)env)->addr << "--" << &node->addr << "--" << packetData << endl;	
-	cout << "On Currtime --> " << this->par->getcurrtime() << ", recvCallBack of Node:" << this->memberNode->addr.getAddress() << " --" << memberNode->inGroup << endl;
+	
 	
 }
 
@@ -343,7 +331,7 @@ void MP1Node::nodeLoopOps() {
 	/*
 	 * Your code goes here
 	 */
-	//this->printNodeData("nodeLoopOps");
+	
 
     return;
 }
