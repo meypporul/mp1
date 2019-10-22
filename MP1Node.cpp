@@ -240,6 +240,7 @@ int MP1Node::finishUpThisNode(){
    /*
     * Your code goes here
     */
+	return 0;
 }
 
 /**
@@ -295,7 +296,8 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	
 	Member *node = (Member *) env;
 	MessageHdr *msg = (MessageHdr *)data;
-	char *MessagePayLoad = (char *)(msg + 1);
+	//char *MessagePayLoad = (char *)(msg + 1);
+	MessagePayLoad *mpl = (MessagePayLoad *)(msg + 1);
 
 	if ( (unsigned)size < sizeof(MessageHdr) ) {
 		#ifdef DEBUGLOG
@@ -309,11 +311,10 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	#endif
 
 	switch(msg->msgType) {
-		case(JOINREQ): cout << "JOINREQ: size=" << size; 
-			MessageHdr *msg = (MessageHdr *)data;
-			MessagePayLoad *mpl = (MessagePayLoad *)(msg + 1);
+		case(JOINREQ): 
+			cout << "JOINREQ: size=" << size; 
 			Address *srcAddr = (Address *)mpl;
-			for (int i = 0; i < msg->n; i++) {
+			for (int i = 0; i < msg->MemberEntry; i++) {
 				processJoinReq(mpl->id, mpl->port, mpl->heartbeat);
 				mpl++;
 			}
