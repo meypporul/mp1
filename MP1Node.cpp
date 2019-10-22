@@ -309,7 +309,16 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	#endif
 
 	switch(msg->msgType) {
-		case(JOINREQ): cout << "JOINREQ: size=" << size; this->printNodeData("recvCallBack"); break;
+		case(JOINREQ): cout << "JOINREQ: size=" << size; 
+			MessageHdr *msg = (MessageHdr *)data;
+			MessagePayLoad *mpl = (MessagePayLoad *)(msg + 1);
+			Address *srcAddr = (Address *)mpl;
+			for (int i = 0; i < msg->n; i++) {
+				processJoinReq(mpl->id, mpl->port, mpl->heartbeat);
+				mpl++;
+			}
+			this->printNodeData("recvCallBack"); 
+		break;
 		case(JOINREP): cout << "JOINREP: size=" << size; memberNode->inGroup = true; this->printNodeData("recvCallBack"); break;
 		case(GOSSIP): cout << "GOSSIP: size=" << size; this->printNodeData("recvCallBack"); break;
 		default: cout << "WrongMessageType: size=" << size; return(false);
