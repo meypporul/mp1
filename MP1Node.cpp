@@ -367,6 +367,7 @@ void MP1Node::nodeLoopOps() {
 		
 		*(int *)(&dstAddr->addr[0]) = memberNode->memberList[ls].id;
 		*(short *)(&dstAddr->addr[4]) = memberNode->memberList[ls].port;
+		cout << "nodeLoopOps--> NodeId" << memberNode->memberList[ls].id << "Port" << memberNode->memberList[ls].port << endl;
 		spreadGossipMemberList(GOSSIP, dstAddr);
 		if (no_of_random_gossip == 2) break;
 		ls--;
@@ -398,7 +399,7 @@ int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 	MessageHdr *msg;
 	MessagePayLoad *mpl;
 	int n = 1;
-	cout << "spreadGossipMemberList" << memberNode->memberList.size() << endl;
+	cout << "spreadGossipMemberList-->" << memberNode->memberList.size() << endl;
 	if (msgType != JOINREQ) {
 		n += memberNode->memberList.size();
 	}
