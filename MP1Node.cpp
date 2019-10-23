@@ -333,6 +333,11 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 		case(GOSSIP): 
 		{
 			cout << "GOSSIP: size=" << size <<endl; 
+			for (int i = 0; i < msg->MemberEntry; i++) {
+				processMembershipUpdate(mpl->NodeId, mpl->Port, mpl->HeartBeatCntr);
+				mpl++;
+			}
+			
 			//this->printNodeData("recvCallBack"); 
 			break;
 		}
@@ -351,9 +356,30 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
  */
 void MP1Node::nodeLoopOps() {
 
-	/*
-	 * Your code goes here
-	 */
+	memberNode->heartbeat++;
+
+	Address *dstAddr = (Address *)malloc(sizeof(Address));
+	std::random_shuffle ( memberNode->memberList.begin(), memberNode->memberList.end() );
+	int ls = memberList.size();
+	//Send Gossip Out
+	while (ls > 0 ) {
+		*(int *)(&dstAddr->addr[0]) = memberNode->memberList[ls].id;
+		*(short *)(&dstAddr->addr[4]) = memberNode->memberList[ls].port;
+		spreadGossipMemberList(GOSSIP, dstAddr);
+	}
+
+	for (vector<MemberListEntry>::iterator i = memberNode->memberList.begin(); i != memberNode->memberList.end(); ) {
+		if (par->getcurrtime() - i->timestamp > memberNode->timeOutCounter ) {
+			*(int *)(&dstAddr->addr[0]) = memberNode->memberList[ls].id;
+			*(short *)(&dstAddr->addr[4]) = memberNode->memberList[ls].port;
+			log->logNodeRemove(&(memberNode->addr), &dstAddr);
+
+			i = memberNode->memberList.erase(i);
+		} else {
+			++i;
+		}
+	}
+	return;
 	
 
     return;
@@ -382,12 +408,12 @@ int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 	mpl->Port = *(short *)(&memberNode->addr.addr[4]);
 	mpl->HeartBeatCntr = memberNode->heartbeat;
 	if (msgType != JOINREQ) {
-		for (vector<MemberListEntry>::iterator m = memberNode->memberList.begin(); m != memberNode->memberList.end(); ++m) {
+		for (vector<MemberListEntry>::iterator i = memberNode->memberList.begin(); i != memberNode->memberList.end(); ++i) {
 			mpl++;
-			if (par->getcurrtime() - m->timestamp <= memberNode->pingCounter ) {
-				mpl->NodeId = m->id;
-				mpl->Port = m->port;
-				mpl->HeartBeatCntr = m->heartbeat;
+			if (par->getcurrtime() - i->timestamp <= memberNode->pingCounter ) {
+				mpl->NodeId = i->id;
+				mpl->Port = i->port;
+				mpl->HeartBeatCntr = i->heartbeat;
 			} else { 
 				mpl->NodeId = *(int *)(&memberNode->addr.addr);
 				mpl->Port = *(short *)(&memberNode->addr.addr[4]);
@@ -417,7 +443,20 @@ void MP1Node::processJoinReq(int id, short port, long HeartBeatCntr) {
 		
 		free(srcAddr);
 		
-		cout << "Send spreadGossipMemberList to -->" << "id=" << id << "Port=" << port <<endl;
+}
+
+/* Usage: processing Join request by introducer */
+void MP1Node::processMembershipUpdate(int id, short port, long HeartBeatCntr) {
+
+	for (vector<MemberListEntry>::iterator i = memberNode->memberList.begin(); i != memberNode->memberList.end(); ++i) {
+		if (i->id == id && i->port == port) {
+			if (i->heartbeat < HeartBeatCntr) {
+				i->heartbeat = HeartBeatCntr;
+				i->timestamp = par->getcurrtime();
+			}
+		}
+	}
+		
 }
 
 /**
