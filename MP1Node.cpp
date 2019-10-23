@@ -459,14 +459,13 @@ void MP1Node::printAddress(Address *addr)
 
 
 void MP1Node::debugNode(string whois_calling) {
-    cout << endl << "@Time[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node.cpp:" << endl;
-	cout << "[" << this->par->getcurrtime() << "]in " << caller_fn << " of MP1Node-Addr:" << memberNode->addr.getAddress() << endl;        
+	cout << endl << "@Time[" << this->par->getcurrtime() << "]in " << whois_calling << " of MP1Node-Addr:" << memberNode->addr.getAddress() << endl;        
     cout << "inGroup=" << memberNode->inGroup << "| " << "heartbeat=" << memberNode->heartbeat << "| " << "pingCounter=" << memberNode->pingCounter << "| ";
 	cout << "timeOutCounter=" << memberNode->timeOutCounter << "| " << "nnb=" << memberNode->nnb << "| " "memberList: size=" << memberNode->memberList.size() << endl;
     
     size_t pos = 0;
     for (pos = 0; pos < memberNode->memberList.size(); pos++) {
-        cout << "MemberShip Table [@" << this->par->getcurrtime() << "] for " << caller_fn << " of MP1Node:" << memberNode->addr.getAddress();
+        cout << "MemberShip Table [@" << this->par->getcurrtime() << "] for " << whois_calling << " of MP1Node:" << memberNode->addr.getAddress();
         cout << " ";
         cout << "pos=" << pos << "| ";
         cout << "id="           << memberNode->memberList[pos].id << "| ";    
