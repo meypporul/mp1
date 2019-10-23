@@ -398,6 +398,7 @@ int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 	MessageHdr *msg;
 	MessagePayLoad *mpl;
 	int n = 1;
+	cout << "spreadGossipMemberList" << memberNode->memberList.size() << endl;
 	if (msgType != JOINREQ) {
 		n += memberNode->memberList.size();
 	}
