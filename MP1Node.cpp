@@ -316,7 +316,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 		{
 			cout << "JOINREQ: size=" << size <<endl; 
 			for (int i = 0; i < msg->MemberEntry; i++) {
-				processJoinReq(mpl->NodeId, mpl->Port, mpl->HeartBeatCntr);
+				processMembership(mpl->NodeId, mpl->Port, mpl->HeartBeatCntr);
 				mpl++;
 			}
 			spreadGossipMemberList(JOINREP, srcAddr);
@@ -334,7 +334,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 		{
 			cout << "GOSSIP: size=" << size <<endl; 
 			for (int i = 0; i < msg->MemberEntry; i++) {
-				processMembershipUpdate(mpl->NodeId, mpl->Port, mpl->HeartBeatCntr);
+				processMembership(mpl->NodeId, mpl->Port, mpl->HeartBeatCntr);
 				mpl++;
 			}
 			
@@ -436,12 +436,26 @@ int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 }
 
 /* Usage: processing Join request by introducer */
-void MP1Node::processJoinReq(int id, short port, long HeartBeatCntr) {
+void MP1Node::processMembership(int id, short port, long HeartBeatCntr) {
 
 		// process the new NODE
-		MemberListEntry *newMember = new MemberListEntry(id, port, HeartBeatCntr, par->getcurrtime());
-		memberNode->memberList.insert(memberNode->memberList.begin(), *newMember);
+		bool isnewEntry = true;
 
+		for (vector<MemberListEntry>::iterator i = memberNode->memberList.begin(); i != memberNode->memberList.end(); ++i) {
+			if (i->id == id && i->port == port) {
+				if (i->heartbeat < HeartBeatCntr) {
+					i->heartbeat = HeartBeatCntr;
+					i->timestamp = par->getcurrtime();
+				}
+				isnewEntry = false;
+				log->LOG(&(memberNode->addr), "Node updated");
+			}
+		}
+		if (isnewEntry) {
+			MemberListEntry *newMember = new MemberListEntry(id, port, HeartBeatCntr, par->getcurrtime());
+			memberNode->memberList.insert(memberNode->memberList.begin(), *newMember);			
+		}
+		
 		Address *srcAddr = (Address *)malloc(sizeof(Address));
 		*(int *)(&srcAddr->addr[0]) = id;
 		*(short *)(&srcAddr->addr[4]) = port;
@@ -451,19 +465,6 @@ void MP1Node::processJoinReq(int id, short port, long HeartBeatCntr) {
 		
 }
 
-/* Usage: processing Join request by introducer */
-void MP1Node::processMembershipUpdate(int id, short port, long HeartBeatCntr) {
-
-	for (vector<MemberListEntry>::iterator i = memberNode->memberList.begin(); i != memberNode->memberList.end(); ++i) {
-		if (i->id == id && i->port == port) {
-			if (i->heartbeat < HeartBeatCntr) {
-				i->heartbeat = HeartBeatCntr;
-				i->timestamp = par->getcurrtime();
-			}
-		}
-	}
-		
-}
 
 /**
  * FUNCTION NAME: isNullAddress
