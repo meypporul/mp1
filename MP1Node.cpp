@@ -365,8 +365,8 @@ void MP1Node::nodeLoopOps() {
 	//Send Gossip Out
 	while (ls > 0 ) {
 		
-		*(int *)(&dstAddr->addr[0]) = memberNode->memberList[ls].id;
-		*(short *)(&dstAddr->addr[4]) = memberNode->memberList[ls].port;
+		*(int *)(&dstAddr->addr[0]) = memberNode->memberList[ls-1].id;
+		*(short *)(&dstAddr->addr[4]) = memberNode->memberList[ls-1].port;
 		spreadGossipMemberList(GOSSIP, dstAddr);
 		
 		log->LOG(dstAddr, "Gossip Sent");
