@@ -367,8 +367,10 @@ void MP1Node::nodeLoopOps() {
 		
 		*(int *)(&dstAddr->addr[0]) = memberNode->memberList[ls].id;
 		*(short *)(&dstAddr->addr[4]) = memberNode->memberList[ls].port;
-		cout << "nodeLoopOps--> NodeId" << memberNode->memberList[ls].id << "Port" << memberNode->memberList[ls].port << endl;
 		spreadGossipMemberList(GOSSIP, dstAddr);
+		
+		log->LOG(dstAddr, "Gossip Sent");
+		
 		if (no_of_random_gossip == 2) break;
 		ls--;
 		no_of_random_gossip++;
@@ -448,7 +450,6 @@ void MP1Node::processMembership(int id, short port, long HeartBeatCntr) {
 					i->timestamp = par->getcurrtime();
 				}
 				isnewEntry = false;
-				log->LOG(&(memberNode->addr), "Node updated");
 			}
 		}
 		if (isnewEntry) {
