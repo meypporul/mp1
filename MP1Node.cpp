@@ -214,7 +214,7 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 		mpl->HeartBeatCntr = memberNode->heartbeat;
 		
 		cout << "introduceSelfToGroup --> Trying to join... " << &memberNode->addr << " --> heartbeat" << memberNode->heartbeat <<endl;
-		this->printNodeData("introduceSelfToGroup");
+		//this->printNodeData("introduceSelfToGroup");
 
 		
 		emulNet->ENsend(&memberNode->addr, joinaddr, (char *)msg, msgsize);
@@ -384,8 +384,7 @@ void MP1Node::nodeLoopOps() {
 			++i;
 		}
 	}
-	return;
-	
+	this->printNodeData("nodeLoopOps");
 
     return;
 }
