@@ -96,8 +96,8 @@ int MP1Node::initThisNode(Address *joinaddr) {
 	/*
 	 * This function is partially implemented and may require changes
 	 */
-	int id = *(int*)(&memberNode->addr.addr);
-	int port = *(short*)(&memberNode->addr.addr[4]);
+	//int id = *(int*)(&memberNode->addr.addr);
+	//int port = *(short*)(&memberNode->addr.addr[4]);
 
 	memberNode->bFailed = false;
 	memberNode->inited = true;
@@ -110,7 +110,7 @@ int MP1Node::initThisNode(Address *joinaddr) {
 	memberNode->timeOutCounter = TREMOVE; //Set Actual time out
     initMemberListTable(memberNode);
      
-   cout << endl << "initThisNode: id=" << id << ", port=" << port << endl;
+   //cout << endl << "initThisNode: id=" << id << ", port=" << port << endl;
 	
     return 0;
 }
@@ -160,7 +160,7 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
 		mpl->Port = *(short *)(&memberNode->addr.addr[4]);
 		mpl->HeartBeatCntr = memberNode->heartbeat;
 		
-		cout << "introduceSelfToGroup --> Trying to join... " << &memberNode->addr << " --> heartbeat" << memberNode->heartbeat <<endl;
+		//cout << "introduceSelfToGroup --> Trying to join... " << &memberNode->addr << " --> heartbeat" << memberNode->heartbeat <<endl;
 		//this->debugNode("introduceSelfToGroup");
 
 		
@@ -260,7 +260,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	switch(msg->msgType) {
 		case(JOINREQ):
 		{
-			cout << "JOINREQ: size=" << size <<endl; 
+			//cout << "JOINREQ: size=" << size <<endl; 
 			for (int i = 0; i < msg->MemberEntry; i++) {
 				processMembership(mpl->NodeId, mpl->Port, mpl->HeartBeatCntr);
 				mpl++;
@@ -271,14 +271,14 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 		}
 		case(JOINREP): 
 		{
-			cout << "JOINREP: size=" << size <<endl; 
+			//cout << "JOINREP: size=" << size <<endl; 
 			memberNode->inGroup = true; 
 			//this->debugNode("recvCallBack"); 
 			break;
 		}
 		case(GOSSIP): 
 		{
-			cout << "GOSSIP: size=" << size <<endl; 
+			//cout << "GOSSIP: size=" << size <<endl; 
 			for (int i = 0; i < msg->MemberEntry; i++) {
 				processMembership(mpl->NodeId, mpl->Port, mpl->HeartBeatCntr);
 				mpl++;
@@ -287,7 +287,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 			//this->debugNode("recvCallBack"); 
 			break;
 		}
-		default: cout << "WrongMessageType: size=" << size; return(false);
+		default: log->LOG(&((Member *)env)->addr, "Recived faulty message type"); return(false);
 	}
 	return(true);
 	
@@ -333,7 +333,7 @@ void MP1Node::nodeLoopOps() {
 			++i;
 		}
 	}
-	this->debugNode("nodeLoopOps");
+	//this->debugNode("nodeLoopOps");
 
     return;
 }
@@ -346,34 +346,30 @@ int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 
 	MessageHdr *msg;
 	MessagePayLoad *mpl;
-	int n = 1;
-	cout << "spreadGossipMemberList-->" << memberNode->memberList.size() << endl;
-	if (msgType != JOINREQ) {
-		n += memberNode->memberList.size();
-	}
-
-	size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad);
- 
+	int n = memberNode->memberList.size();
+	size_t msgsize = sizeof(MessageHdr) + n * sizeof(MessagePayLoad); //Form message of size of the table i.e. MessagePayLoad, with header i.e. MessageHdr
 	msg = (MessageHdr *) malloc(msgsize);
-	msg->msgType = msgType;
-	msg->MemberEntry = n;
 	mpl = (MessagePayLoad *)(msg + 1);
-	mpl->NodeId = *(int *)(&memberNode->addr.addr);
-	mpl->Port = *(short *)(&memberNode->addr.addr[4]);
-	mpl->HeartBeatCntr = memberNode->heartbeat;
-	if (msgType != JOINREQ) {
-		for (vector<MemberListEntry>::iterator i = memberNode->memberList.begin(); i != memberNode->memberList.end(); ++i) {
-			mpl++;
-			if (par->getcurrtime() - i->timestamp <= memberNode->pingCounter ) {
-				mpl->NodeId = i->id;
-				mpl->Port = i->port;
-				mpl->HeartBeatCntr = i->heartbeat;
-			} else { 
-				mpl->NodeId = *(int *)(&memberNode->addr.addr);
-				mpl->Port = *(short *)(&memberNode->addr.addr[4]);
-				mpl->HeartBeatCntr = memberNode->heartbeat;
-			}
+	
+	//cout << "spreadGossipMemberList-->memberList.size=" << memberNode->memberList.size()  << ", value of n=" << n << endl;
+ 
+	msg->msgType = msgType; //Set Message Type
+	msg->MemberEntry = n; //Set No of Message in the Payload default atlease 1
+	
+	for (vector<MemberListEntry>::iterator i = memberNode->memberList.begin(); i != memberNode->memberList.end(); ++i) {
+
+		//cout << "spreadGossipMemberList-->Value of id=" << i->id << ", getcurrtime=" << par->getcurrtime() << ", timestamp=" << i->timestamp << ", pingCounter=" << memberNode->pingCounter << endl;
+		
+		if (par->getcurrtime() - i->timestamp <= memberNode->pingCounter ) {
+			mpl->NodeId = i->id;
+			mpl->Port = i->port;
+			mpl->HeartBeatCntr = i->heartbeat;
+		} else { 
+			mpl->NodeId = *(int *)(&memberNode->addr.addr);
+			mpl->Port = *(short *)(&memberNode->addr.addr[4]);
+			mpl->HeartBeatCntr = memberNode->heartbeat;
 		}
+		mpl++;
 	}
  
 	emulNet->ENsend(&memberNode->addr, dstAddr, (char *)msg, msgsize);
@@ -386,9 +382,9 @@ int MP1Node::spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr) {
 /* Usage: processing Join request by introducer */
 void MP1Node::processMembership(int id, short port, long HeartBeatCntr) {
 
-		// process the new NODE
+		
 		bool isnewEntry = true;
-
+		// process the exiting NODE if any
 		for (vector<MemberListEntry>::iterator i = memberNode->memberList.begin(); i != memberNode->memberList.end(); ++i) {
 			if (i->id == id && i->port == port) {
 				if (i->heartbeat < HeartBeatCntr) {
@@ -398,7 +394,7 @@ void MP1Node::processMembership(int id, short port, long HeartBeatCntr) {
 				isnewEntry = false;
 			}
 		}
-		if (isnewEntry) {
+		if (isnewEntry) { // if it is not exisitng node then add to your list
 			MemberListEntry *newMember = new MemberListEntry(id, port, HeartBeatCntr, par->getcurrtime());
 			memberNode->memberList.insert(memberNode->memberList.begin(), *newMember);			
 		}
