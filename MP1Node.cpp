@@ -360,7 +360,7 @@ void MP1Node::nodeLoopOps() {
 
 	Address *dstAddr = (Address *)malloc(sizeof(Address));
 	std::random_shuffle ( memberNode->memberList.begin(), memberNode->memberList.end() );
-	int ls = memberNode->memberList.size();
+	int ls = memberNode->memberList.size() + 1;
 	int no_of_random_gossip = 0;
 	//Send Gossip Out
 	while (ls > 0 ) {
@@ -369,7 +369,7 @@ void MP1Node::nodeLoopOps() {
 		*(short *)(&dstAddr->addr[4]) = memberNode->memberList[ls].port;
 		spreadGossipMemberList(GOSSIP, dstAddr);
 		
-		log->LOG(dstAddr, "Gossip Sent");
+		log->LOG(dstAddr, "Gossip Sent ls=%d", ls);
 		
 		if (no_of_random_gossip == 2) break;
 		ls--;
