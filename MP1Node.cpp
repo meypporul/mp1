@@ -57,7 +57,6 @@ void MP1Node::printNodeData(string caller_fn) {
         cout << "port="         << memberNode->memberList[pos].port << "| ";    
         cout << "heartbeat="    << memberNode->memberList[pos].heartbeat << "| ";                
         cout << "timestamp="    << memberNode->memberList[pos].timestamp << "| ";
-		cout << "timeOutCounter="    << memberNode->memberList[pos].timeOutCounter << "| ";
         cout << endl;
     }
 	if (this->memberNode->memberList.size() == 0)
