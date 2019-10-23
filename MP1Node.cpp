@@ -369,7 +369,7 @@ void MP1Node::nodeLoopOps() {
 		*(short *)(&dstAddr->addr[4]) = memberNode->memberList[ls].port;
 		spreadGossipMemberList(GOSSIP, dstAddr);
 		
-		log->LOG(dstAddr, "Gossip Sent ls=%d", ls);
+		log->LOG(dstAddr, "Gossip Sent %d", ls);
 		
 		if (no_of_random_gossip == 2) break;
 		ls--;
