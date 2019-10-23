@@ -69,8 +69,7 @@ private:
 	void printMessage(string callr_fn, Address *sendr, MessagePayLoad *msg, int size);
 	void printNodeData(string caller_fn);
 	int spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr);
-	void processJoinReq(int id, short port, long HeartBeatCntr);
-	void processMembershipUpdate(int id, short port, long HeartBeatCntr);
+	void processMembership(int id, short port, long HeartBeatCntr);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);
