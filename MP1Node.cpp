@@ -378,8 +378,8 @@ void MP1Node::nodeLoopOps() {
 
 	for (vector<MemberListEntry>::iterator i = memberNode->memberList.begin(); i != memberNode->memberList.end(); ) {
 		if (par->getcurrtime() - i->timestamp > memberNode->timeOutCounter ) {
-			*(int *)(&dstAddr->addr[0]) = memberNode->memberList[ls].id;
-			*(short *)(&dstAddr->addr[4]) = memberNode->memberList[ls].port;
+			*(int *)(&dstAddr->addr[0]) = i->id;
+			*(short *)(&dstAddr->addr[4]) = i->port;
 			log->logNodeRemove(&(memberNode->addr), dstAddr);
 
 			i = memberNode->memberList.erase(i);
