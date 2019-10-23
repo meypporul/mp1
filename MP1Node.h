@@ -66,8 +66,7 @@ private:
 	Member *memberNode;
 	char NULLADDR[6];
 	
-	void printMessage(string callr_fn, Address *sendr, MessagePayLoad *msg, int size);
-	void printNodeData(string caller_fn);
+	void debugNode(string whois_calling)
 	int spreadGossipMemberList(enum MsgTypes msgType, Address *dstAddr);
 	void processMembership(int id, short port, long HeartBeatCntr);
 
